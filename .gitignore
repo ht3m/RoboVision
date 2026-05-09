@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# 虚拟环境
+venv/
+env/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 运行时产物 — 照片
+photos/
+
+# 运行时产物 — 过程文件
+procedure/
+
+# 运行时产物 — 报告图
+report/
+
+# 模型文件 (体积过大，自行下载)
+*.pt
+*.pth
+*.bin
+*.safetensors
+
+# 环境变量 / 密钥
+.env
+*.env.local
+
+# 操作系统
+.DS_Store
+Thumbs.db
