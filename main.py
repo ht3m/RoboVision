@@ -106,12 +106,8 @@ def generate_report(number: int):
     overlay_path = os.path.join(SAM_OUTPUT_DIR, f"d405_color_{number_str}_overlay.jpg")
     depth_path = os.path.join(PHOTO_DIR, f"d405_depth_{number_str}.png")
 
-    # 查找最新的点云截图
-    pc_candidates = sorted(
-        glob.glob(os.path.join(CLOUD_POINT_DIR, f"pc_filtered_*_{number_str}.png")),
-        reverse=True,
-    )
-    pc_path = pc_candidates[0] if pc_candidates else None
+    # 查找滤波后点云截图
+    pc_path = os.path.join(CLOUD_POINT_DIR, f"pc3d_{number_str}.png")
 
     print(f"\n{'─' * 60}")
     print(f"  生成 2×2 报告图...")
@@ -213,41 +209,25 @@ def run_pipeline():
         return
 
     from Core.point_cloud_reconstruct import (
-        process_mask_point_cloud, save_point_cloud_screenshot,
+        compute_all_point_clouds, show_point_clouds,
     )
 
-    centroids_cam = {}  # {name: centroid_3d_in_camera_frame}
-    pcd_screenshots = []
+    # 一次性处理所有物体点云（背景 + 各物体）
+    pc_data = compute_all_point_clouds(depth_img, boxes)
 
-    for i, box in enumerate(boxes):
-        if box.get("mask") is None:
-            print(f"\n  [跳过] {box['name']} (无有效 mask)")
-            continue
-
-        name = box["name"]
-        mask = box["mask"]
-        display_name = f"#{i} {name}"
-
-        print(f"\n  [{i+1}/{len(boxes)}] 处理: {display_name}")
-
-        centroid, pcd_voxel, pcd_fine = process_mask_point_cloud(
-            depth_img, mask, display_name=display_name,
-        )
-
-        centroids_cam[name] = centroid
-
-        # 保存点云截图 (debug 模式)
-        if MODE == "debug" and len(pcd_fine.points) > 0:
-            screenshot_path = os.path.join(
-                CLOUD_POINT_DIR, f"pc_filtered_{i:02d}_{number_str}.png",
-            )
-            save_point_cloud_screenshot(pcd_voxel, pcd_fine, centroid, screenshot_path)
-            pcd_screenshots.append(screenshot_path)
-
-        print(f"    重心 (相机坐标系): ({centroid[0]:.4f}, {centroid[1]:.4f}, {centroid[2]:.4f}) m")
+    centroids_cam = pc_data["centroids"]
 
     if not centroids_cam:
         print("\n  [警告] 所有物品点云重建均失败")
+
+    # 可视化窗口 (debug 模式)
+    # 窗口 1: 预滤波 → 关闭 → 窗口 2: 滤波后 → 关闭 → 截图
+    show_point_clouds(pc_data, number_str)
+
+    # 输出重心
+    for name, centroid in centroids_cam.items():
+        print(f"  {name} 重心 (相机坐标系): "
+              f"({centroid[0]:.4f}, {centroid[1]:.4f}, {centroid[2]:.4f}) m")
 
     # 4. 坐标变换
     print(f"\n{'=' * 60}")
