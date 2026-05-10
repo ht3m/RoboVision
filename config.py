@@ -61,9 +61,19 @@ REPORT_DIR = "report"                   # 2x2 报告图
 VL_MODE = "api"
 
 # ── API 模式 ──
-VL_API_KEY = os.environ.get("PARATERA_API_KEY", "")
+VL_API_KEY = os.environ.get("PARATERA_API_KEY")
 VL_API_URL = "https://llmapi.paratera.com/v1"
 VL_MODEL_NAME = "Qwen3-VL-30B-A3B-Instruct"
+
+# 启动校验: API 模式下密钥为空则报错退出
+if VL_MODE == "api" and (VL_API_KEY is None or VL_API_KEY.strip() == ""):
+    print("=" * 60)
+    print("  [致命错误] PARATERA_API_KEY 环境变量未设置！")
+    print("  请创建 .env 文件并设置密钥，或执行:")
+    print("    set PARATERA_API_KEY=你的密钥")
+    print("  程序退出。")
+    print("=" * 60)
+    exit(1)
 
 # ── 本地模式 ──
 VL_LOCAL_MODEL_PATH = r"F:\Models\Qwen3-vl"

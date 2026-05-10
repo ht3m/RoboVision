@@ -87,12 +87,35 @@ pip install git+https://github.com/facebookresearch/sam2.git
 
 ---
 
+## 环境变量配置
+
+VL 模型 API Key 通过环境变量传入。项目使用 `.env` 文件管理密钥，已加入 `.gitignore` 防止泄露。
+
+1. 复制模板文件：
+
+```bash
+copy .env.example .env
+```
+
+2. 编辑 `.env`，填入真实 API Key：
+
+```
+PARATERA_API_KEY=your_actual_api_key_here
+```
+
+3. 启动程序时会自动校验：若 API Key 为空，程序报错并退出。
+
+> 也可直接在终端设置（临时）：`set PARATERA_API_KEY=你的密钥`
+
+---
+
 ## 使用方法
 
 1. 激活 Python 环境
 2. 确保 D405 相机已连接，机械臂控制器可达
-3. 修改 `config.py` 中的 `HAND_EYE_MATRIX` 和 `ROBOT_IP`
-4. 运行主程序：
+3. 配置 `.env` 文件中的 API Key（参考上方"环境变量配置"）
+4. 修改 `config.py` 中的 `HAND_EYE_MATRIX` 和 `ROBOT_IP`
+5. 运行主程序：
 
 ```bash
 python main.py

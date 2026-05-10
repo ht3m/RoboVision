@@ -400,15 +400,29 @@ def compute_all_point_clouds(depth_img: NDArray,
             "bg_pcd": bg_pcd, "centroids": {},
         }
 
+    # ── 同名物体去重编号 ──
+    _unique_names = []
+    _name_counter = {}
+    for name, _, _ in obj_data:
+        if name in _name_counter:
+            _name_counter[name] += 1
+        else:
+            _name_counter[name] = 1
+        if _name_counter[name] == 1:
+            _unique_names.append(name)
+        else:
+            _unique_names.append(f"{name}_{_name_counter[name]}")
+
     # ── 预滤波阶段：OBB ──
     pre_pcs, pre_obbs, pre_names = [], [], []
-    for name, pts_raw, pts_ds in obj_data:
+    for idx, (name, pts_raw, pts_ds) in enumerate(obj_data):
         obb = pca_obb(pts_ds)
         if obb is None:
             continue
+        unique_name = _unique_names[idx]
         pre_pcs.append(pts_ds)
         pre_obbs.append(obb)
-        pre_names.append(name)
+        pre_names.append(unique_name)
 
     # ── 滤波阶段 ──
     print(f"\n{'─' * 70}")
@@ -417,8 +431,9 @@ def compute_all_point_clouds(depth_img: NDArray,
 
     obj_pcs, obbs, names, removed_pcs, centroids = [], [], [], [], {}
 
-    for name, pts_raw, pts_ds in obj_data:
-        print(f"\n  [{len(obj_pcs)+1}/{len(obj_data)}] {name} (滤波中)")
+    for idx, (name, pts_raw, pts_ds) in enumerate(obj_data):
+        unique_name = _unique_names[idx]
+        print(f"\n  [{len(obj_pcs)+1}/{len(obj_data)}] {unique_name} (滤波中)")
 
         pts_filtered, all_removed = filter_single_object(pts_ds)
         if len(pts_filtered) < 10:
@@ -431,11 +446,11 @@ def compute_all_point_clouds(depth_img: NDArray,
             continue
 
         centroid = compute_centroid(pts_filtered)
-        centroids[name] = centroid
+        centroids[unique_name] = centroid
 
         obj_pcs.append(pts_filtered)
         obbs.append(obb)
-        names.append(name)
+        names.append(unique_name)
         removed_pcs.append(all_removed)
 
     # ── 汇总 ──
