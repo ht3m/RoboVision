@@ -176,13 +176,14 @@ def run_pipeline():
     # 1. 拍照
     from Core.d405_camera import capture_photos
 
-    number = get_next_number()
-    number_str = f"{number:04d}"
     print(f"\n{'=' * 60}")
-    print(f"  [Step 1/4] 拍照 — 编号: {number_str}")
+    print(f"  [Step 1/4] 拍照")
     print(f"{'=' * 60}")
 
-    color_path, depth_path = capture_photos(number)
+    number = capture_photos(PHOTO_DIR)
+    number_str = f"{number:04d}"
+    color_path = os.path.join(PHOTO_DIR, f"d405_color_{number_str}.jpg")
+    depth_path = os.path.join(PHOTO_DIR, f"d405_depth_{number_str}.png")
     print(f"  彩色图: {color_path}")
     print(f"  深度图: {depth_path}")
 
