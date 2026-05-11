@@ -243,6 +243,9 @@ def run_pipeline():
         T_end_base = pose_to_matrix(pose)
         print(f"  末端位姿: [{pose[0]:.4f}, {pose[1]:.4f}, {pose[2]:.4f}, "
               f"{pose[3]:.4f}, {pose[4]:.4f}, {pose[5]:.4f}]")
+        print(f"\n  末端坐标 (ecef):")
+        print(f"    x={pose[0]:.4f}  y={pose[1]:.4f}  z={pose[2]:.4f}")
+        print(f"    rx={pose[3]:.4f}  ry={pose[4]:.4f}  rz={pose[5]:.4f}")
     except Exception as e:
         print(f"  [错误] 无法获取机械臂位姿: {e}")
         print(f"  [警告] 将仅输出相机坐标系下的重心")
