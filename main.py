@@ -32,6 +32,7 @@ sys.path.insert(0, os.path.join(_project_root, "Core"))
 
 from config import (
     MODE, PHOTO_DIR, OUTPUT_DIR, SAM_OUTPUT_DIR, CLOUD_POINT_DIR, REPORT_DIR,
+    RESULT_DIR, RESULT_FILE, VL_PROMPT_SOURCE,
     HAND_EYE_MATRIX,
     ROBOT_IP, ROBOT_PORT,
     D405_FX, D405_FY, D405_CX, D405_CY,
@@ -59,6 +60,41 @@ def get_next_number() -> int:
         except ValueError:
             continue
     return max(nums) + 1 if nums else 0
+
+
+def get_result_path() -> str:
+    return os.path.join(RESULT_DIR, RESULT_FILE)
+
+
+def reset_result_file() -> str:
+    os.makedirs(RESULT_DIR, exist_ok=True)
+    result_path = get_result_path()
+    with open(result_path, "w", encoding="utf-8") as f:
+        f.write("")
+    return result_path
+
+
+def write_result_file(centroids_base: dict[str, np.ndarray]) -> str:
+    result_path = get_result_path()
+    os.makedirs(RESULT_DIR, exist_ok=True)
+    with open(result_path, "w", encoding="utf-8") as f:
+        for name, c_base in centroids_base.items():
+            f.write(f"[{name}]：[{c_base[0]:.4f}, {c_base[1]:.4f}, {c_base[2]:.4f}]\n")
+    return result_path
+
+
+def read_runtime_prompt_if_needed() -> str | None:
+    source = VL_PROMPT_SOURCE.strip().lower()
+    if source == "fixed":
+        return None
+    if source != "terminal":
+        raise ValueError("VL_PROMPT_SOURCE must be 'fixed' or 'terminal'")
+
+    print("请输入本次 VL 检测 prompt，输入完成后按 Enter：")
+    prompt = input("prompt> ").strip()
+    if not prompt:
+        raise ValueError("VL_PROMPT_SOURCE='terminal' 时 prompt 不能为空")
+    return prompt
 
 
 # ============================================================================
@@ -167,7 +203,7 @@ def generate_report(number: int):
 # 主流程
 # ============================================================================
 
-def run_pipeline():
+def run_pipeline(runtime_prompt: str | None = None):
     """执行一次完整的检测流水线"""
     # 1. 拍照
     from Core.d405_camera import capture_photos
@@ -189,7 +225,7 @@ def run_pipeline():
     print(f"{'=' * 60}")
 
     from Core.detect2sam import run_vl_sam
-    boxes = run_vl_sam(number)
+    boxes = run_vl_sam(number, runtime_prompt=runtime_prompt)
 
     if boxes is None:
         print("\n  [错误] VL+SAM 流程失败，终止")
@@ -264,6 +300,9 @@ def run_pipeline():
         print(f"    基坐标系:    ({c_base[0]:.4f}, {c_base[1]:.4f}, {c_base[2]:.4f}) m")
 
     # 5. 生成报告 (debug 模式)
+    result_path = write_result_file(centroids_base)
+    print(f"\n  Result file saved: {result_path}")
+
     if MODE == "debug":
         generate_report(number)
 
@@ -284,6 +323,7 @@ def run_pipeline():
     print(f"    照片:    {PHOTO_DIR}/")
     print(f"    VL 框图: {OUTPUT_DIR}/")
     print(f"    SAM mask: {SAM_OUTPUT_DIR}/")
+    print(f"    result:   {result_path}")
     if MODE == "debug":
         print(f"    点云截图: {CLOUD_POINT_DIR}/")
         print(f"    报告图:   {REPORT_DIR}/")
@@ -295,6 +335,26 @@ def run_pipeline():
 # ============================================================================
 
 def main():
+    result_path = reset_result_file()
+    print("=" * 60)
+    print("  Sys_Vision - robot vision localization")
+    print(f"  mode: {MODE}")
+    print(f"  result file reset: {result_path}")
+    print("=" * 60)
+
+    t_start = time.time()
+    try:
+        runtime_prompt = read_runtime_prompt_if_needed()
+        run_pipeline(runtime_prompt=runtime_prompt)
+    except Exception as e:
+        print(f"\n{'!' * 60}")
+        print(f"  [fatal] pipeline failed: {e}")
+        traceback.print_exc()
+        print(f"{'!' * 60}")
+    t_elapsed = time.time() - t_start
+    print(f"\n  elapsed: {t_elapsed:.1f}s")
+    return
+
     """主入口: 等待终端输入 'S' 启动流程, 输入 'Q' 退出"""
     print("=" * 60)
     print("  Sys_Vision — 机械臂视觉定位系统")

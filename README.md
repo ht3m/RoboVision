@@ -183,3 +183,9 @@ P_base = T_end→base  ×  T_cam→end  ×  P_cam
 - 输出目标从相机坐标系重心变为**基坐标系重心**
 - 新增 `config.py` 模式开关控制可视化行为
 - 目录结构与文件命名规范化
+# 当前运行方式补充
+
+- `python main.py` 会直接执行一次完整流程，不再需要输入 `S` 启动或 `Q` 退出。
+- `config.py` 中 `VL_PROMPT_SOURCE = "fixed"` 时使用代码内置 prompt。
+- `config.py` 中 `VL_PROMPT_SOURCE = "terminal"` 时，程序启动后会在终端提示输入本次 VL prompt。
+- 每次运行都会覆写 `result/vision_result.txt`。成功定位的每行格式为 `[物品名字及编号]：[x, y, z]`；如果没有可用检测结果，文件保持空白。

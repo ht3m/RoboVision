@@ -157,14 +157,16 @@ def encode_image(image: Image.Image) -> str:
     return base64.b64encode(buf.getvalue()).decode("utf-8")
 
 
-def describe_image(img_path: str) -> str:
+def describe_image(img_path: str, runtime_prompt: str | None = None) -> str:
     """读取图片并调用 VL 模型"""
     print(f"  加载图片: {img_path}")
     img = Image.open(img_path).convert("RGB")
     print(f"  原始尺寸: {img.size[0]} x {img.size[1]}")
     print(f"  精简模式: {'开启' if VL_LEAN_MODE else '关闭'}")
 
-    user_prompt = LEAN_USER_PROMPT_TEMPLATE if VL_LEAN_MODE else USER_PROMPT_TEMPLATE
+    user_prompt = runtime_prompt if runtime_prompt is not None else (
+        LEAN_USER_PROMPT_TEMPLATE if VL_LEAN_MODE else USER_PROMPT_TEMPLATE
+    )
 
     if VL_MODE == "local":
         return _describe_image_local(img, user_prompt)
@@ -472,7 +474,7 @@ def save_results(image_np: np.ndarray, boxes: List[Dict], name_prefix: str):
 # 一体化处理函数 (供 main.py 调用)
 # ============================================================================
 
-def run_vl_sam(photo_number: int | str) -> Optional[List[Dict]]:
+def run_vl_sam(photo_number: int | str, runtime_prompt: str | None = None) -> Optional[List[Dict]]:
     """对单张照片执行 VL 检测 + SAM2 分割的完整流程。
 
     Args:
@@ -498,7 +500,7 @@ def run_vl_sam(photo_number: int | str) -> Optional[List[Dict]]:
     # Step 1: VL 检测
     t_vl_start = time.time()
     try:
-        vl_result = describe_image(img_path)
+        vl_result = describe_image(img_path, runtime_prompt=runtime_prompt)
     except Exception as e:
         print(f"  [错误] VL 调用失败: {e}")
         traceback.print_exc()

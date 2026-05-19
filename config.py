@@ -171,3 +171,11 @@ FONT_PATHS = [
     "C:/Windows/Fonts/simhei.ttf",
     "C:/Windows/Fonts/arial.ttf",
 ]
+
+# Final result output.
+RESULT_DIR = "result"
+RESULT_FILE = "vision_result.txt"
+
+# "fixed" uses the prompt defined in code.
+# "terminal" reads the prompt from stdin after main.py starts.
+VL_PROMPT_SOURCE = "fixed"
