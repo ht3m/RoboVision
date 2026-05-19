@@ -248,8 +248,8 @@ def run_pipeline():
         print(f"    rx={pose[3]:.4f}  ry={pose[4]:.4f}  rz={pose[5]:.4f}")
     except Exception as e:
         print(f"  [错误] 无法获取机械臂位姿: {e}")
-        print(f"  [警告] 将仅输出相机坐标系下的重心")
-        T_end_base = np.eye(4)
+        print("  [错误] 无法继续输出机器人基坐标系，请检查网线、ROBOT_IP 和 ROBOT_PORT")
+        return
 
     print(f"\n  手眼矩阵 (cam → end):")
     print(f"  {HAND_EYE_MATRIX}")
