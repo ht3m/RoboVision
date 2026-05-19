@@ -21,6 +21,7 @@ import sys
 import time
 import glob
 import traceback
+import ast
 import numpy as np
 import cv2
 from PIL import Image
@@ -90,11 +91,39 @@ def read_runtime_prompt_if_needed() -> str | None:
     if source != "terminal":
         raise ValueError("VL_PROMPT_SOURCE must be 'fixed' or 'terminal'")
 
-    print("请输入本次 VL 检测 prompt，输入完成后按 Enter：")
-    prompt = input("prompt> ").strip()
+    print("请输入本次 VL 检测 prompt。可输入多行 Python 字符串片段，空行结束：")
+    lines = []
+    while True:
+        line = input("prompt> " if not lines else "... ")
+        if line == "":
+            break
+        lines.append(line)
+
+    prompt = parse_terminal_prompt(lines).strip()
     if not prompt:
         raise ValueError("VL_PROMPT_SOURCE='terminal' 时 prompt 不能为空")
     return prompt
+
+
+def parse_terminal_prompt(lines: list[str]) -> str:
+    """Parse plain text or Python-style string fragments from terminal input."""
+    fragments = []
+    all_string_literals = True
+    for line in lines:
+        stripped = line.strip()
+        try:
+            value = ast.literal_eval(stripped)
+        except (SyntaxError, ValueError):
+            all_string_literals = False
+            break
+        if not isinstance(value, str):
+            all_string_literals = False
+            break
+        fragments.append(value)
+
+    if all_string_literals and fragments:
+        return "".join(fragments)
+    return "\n".join(lines)
 
 
 # ============================================================================
