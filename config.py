@@ -18,6 +18,35 @@
 import os
 import numpy as np
 
+
+def _load_project_env() -> str:
+    """Load project .env before reading environment-backed config."""
+    env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
+
+    try:
+        from dotenv import load_dotenv
+    except ImportError:
+        if not os.path.exists(env_path):
+            return "missing"
+
+        with open(env_path, "r", encoding="utf-8-sig") as f:
+            for raw_line in f:
+                line = raw_line.strip()
+                if not line or line.startswith("#") or "=" not in line:
+                    continue
+                key, value = line.split("=", 1)
+                key = key.strip()
+                value = value.strip().strip('"').strip("'")
+                if key:
+                    os.environ.setdefault(key, value)
+        return "fallback"
+
+    load_dotenv(env_path)
+    return "python-dotenv"
+
+
+_ENV_LOAD_MODE = _load_project_env()
+
 # ============================================================================
 # 0. 运行模式
 # ============================================================================
@@ -73,6 +102,10 @@ if VL_MODE == "api" and (VL_API_KEY is None or VL_API_KEY.strip() == ""):
     print("    set PARATERA_API_KEY=你的密钥")
     print("  程序退出。")
     print("=" * 60)
+    if _ENV_LOAD_MODE == "missing":
+        print("  Project .env file was not found.")
+    elif _ENV_LOAD_MODE == "fallback":
+        print("  python-dotenv is not installed; built-in .env fallback was used but no valid key was found.")
     exit(1)
 
 # ── 本地模式 ──

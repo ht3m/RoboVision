@@ -382,45 +382,6 @@ def main():
         print(f"{'!' * 60}")
     t_elapsed = time.time() - t_start
     print(f"\n  elapsed: {t_elapsed:.1f}s")
-    return
-
-    """主入口: 等待终端输入 'S' 启动流程, 输入 'Q' 退出"""
-    print("=" * 60)
-    print("  Sys_Vision — 机械臂视觉定位系统")
-    print(f"  模式: {'调试 (debug)' if MODE == 'debug' else '实验 (experiment)'}")
-    print("=" * 60)
-    print()
-    print("  指令:")
-    print("    S  — 拍照并执行检测定位")
-    print("    Q  — 退出程序")
-    print()
-
-    while True:
-        try:
-            cmd = input(">>> ").strip().upper()
-        except (EOFError, KeyboardInterrupt):
-            print("\n退出程序")
-            break
-
-        if cmd == "S":
-            t_start = time.time()
-            try:
-                run_pipeline()
-            except Exception as e:
-                print(f"\n{'!' * 60}")
-                print(f"  [严重错误] 流水线执行失败: {e}")
-                traceback.print_exc()
-                print(f"{'!' * 60}")
-            t_elapsed = time.time() - t_start
-            print(f"\n  ⏱ 总耗时: {t_elapsed:.1f}s")
-            print("\n  等待下一条指令 (S/Q)...\n")
-
-        elif cmd == "Q":
-            print("退出程序")
-            break
-
-        else:
-            print(f"  未知指令: '{cmd}'，请输入 S 或 Q")
 
 
 if __name__ == "__main__":

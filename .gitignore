@@ -29,6 +29,7 @@ procedure/
 
 # 运行时产物 — 报告图
 report/
+result/
 
 # 模型文件 (体积过大，自行下载)
 *.pt
