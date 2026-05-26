@@ -54,17 +54,17 @@ Sys_Vision/
 
 ### 安装命令
 
-满血
+满血（本地VLM模型）
 ```bash
 pip install numpy opencv-python Pillow scipy open3d torch torchvision openai modelscope transformers accelerate pyrealsense2 matplotlib
 ```
 
-半血
+半血（无本地VLM）
 ```bash
 pip install numpy opencv-python Pillow scipy open3d torch torchvision openai pyrealsense2 matplotlib
 ```
 
-SAM2 需要单独安装：
+SAM2 需要单独安装（可能安装失败）：
 
 ```bash
 pip install git+https://github.com/facebookresearch/sam2.git
