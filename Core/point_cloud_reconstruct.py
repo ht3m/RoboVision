@@ -10,6 +10,7 @@ point_cloud_reconstruct.py — 原始深度点云重建、滤波与重心计算
 """
 
 import os
+import re
 import numpy as np
 import cv2
 import open3d as o3d
@@ -28,7 +29,7 @@ from config import (
     RAW_PC_DBSCAN_KEEP_TOP2,
     RAW_PC_DBSCAN_TOP2_RATIO,
     D405_FX, D405_FY, D405_CX, D405_CY,
-    MODE, CLOUD_POINT_DIR,
+    MODE, CLOUD_POINT_DIR, OBJECT_POINT_CLOUD_DIR,
     VIS_PALETTE,
 )
 
@@ -309,12 +310,46 @@ def compute_centroid(points: NDArray) -> NDArray:
     return np.mean(points[filtered], axis=0)
 
 
+def _safe_filename_token(value: str) -> str:
+    token = re.sub(r"[^0-9A-Za-z._-]+", "_", str(value).strip())
+    return token.strip("._") or "object"
+
+
+def save_object_point_clouds(number_str: str,
+                             names: list[str],
+                             obj_pcs: list[NDArray]) -> list[str]:
+    """Save each filtered object point cloud under cloud_point/<image_id>/."""
+    shot_dir = os.path.join(OBJECT_POINT_CLOUD_DIR, number_str)
+    os.makedirs(shot_dir, exist_ok=True)
+
+    saved_paths = []
+    for idx, (name, points) in enumerate(zip(names, obj_pcs), start=1):
+        if len(points) == 0:
+            continue
+
+        safe_name = _safe_filename_token(name)
+        filename = f"raw_pc_{number_str}_object_{idx:02d}_{safe_name}.ply"
+        path = os.path.join(shot_dir, filename)
+
+        pcd = o3d.geometry.PointCloud()
+        pcd.points = o3d.utility.Vector3dVector(points.astype(np.float64, copy=False))
+        ok = o3d.io.write_point_cloud(path, pcd, write_ascii=False)
+        if ok:
+            saved_paths.append(path)
+            print(f"    Saved object point cloud: {path}")
+        else:
+            print(f"    [!] Failed to save object point cloud: {path}")
+
+    return saved_paths
+
+
 # ============================================================================
 # 流水线核心：一次性处理所有物体
 # ============================================================================
 
 def compute_all_point_clouds(depth_img: NDArray,
-                             boxes: list[dict]) -> dict:
+                             boxes: list[dict],
+                             number_str: str | None = None) -> dict:
     """处理所有检测框的点云：背景 + 各物体预滤波&滤波 + 重心。
 
     Args:
@@ -397,7 +432,7 @@ def compute_all_point_clouds(depth_img: NDArray,
         return {
             "pre_pcs": [], "pre_obbs": [], "pre_names": [],
             "obj_pcs": [], "obbs": [], "names": [], "removed_pcs": [],
-            "bg_pcd": bg_pcd, "centroids": {},
+            "bg_pcd": bg_pcd, "centroids": {}, "point_cloud_paths": [],
         }
 
     # ── 同名物体去重编号 ──
@@ -468,10 +503,14 @@ def compute_all_point_clouds(depth_img: NDArray,
                   f"{dw:7.0f} ×{dh:6.0f} ×{dd:6.0f}")
         print()
 
+    point_cloud_paths = []
+    if number_str is not None and obj_pcs:
+        point_cloud_paths = save_object_point_clouds(str(number_str).zfill(4), names, obj_pcs)
+
     return {
         "pre_pcs": pre_pcs, "pre_obbs": pre_obbs, "pre_names": pre_names,
         "obj_pcs": obj_pcs, "obbs": obbs, "names": names, "removed_pcs": removed_pcs,
-        "bg_pcd": bg_pcd, "centroids": centroids,
+        "bg_pcd": bg_pcd, "centroids": centroids, "point_cloud_paths": point_cloud_paths,
     }
 
 

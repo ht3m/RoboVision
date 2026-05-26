@@ -81,7 +81,22 @@ PHOTO_DIR = "photos"                    # 拍照保存
 OUTPUT_DIR = "procedure/VLM"            # VL 检测中间产物
 SAM_OUTPUT_DIR = "procedure/SAM"        # SAM2 分割中间产物
 CLOUD_POINT_DIR = "procedure/point_cloud"  # 点云截图中间产物
+OBJECT_POINT_CLOUD_DIR = "cloud_point"  # Per-shot object PLY point clouds.
 REPORT_DIR = "report"                   # 2x2 报告图
+
+# ============================================================================
+# 3.1 Object point-cloud section circle tool
+# ============================================================================
+POINT_CLOUD_SECTION_LOW_RATIO = 0.01
+POINT_CLOUD_SECTION_HIGH_RATIO = 0.99
+POINT_CLOUD_CIRCLE_COVER_RATIO = 0.90
+
+# Diameter in meters. Set <= 0 to estimate diameter from POINT_CLOUD_CIRCLE_COVER_RATIO.
+POINT_CLOUD_KNOWN_CIRCLE_DIAMETER = 0.0
+
+# Limits affect visualization/candidate search only; circle scoring still uses all points.
+POINT_CLOUD_SECTION_POINT_SAMPLE_LIMIT = 25000
+POINT_CLOUD_FIXED_CIRCLE_PAIR_SAMPLE_LIMIT = 2500
 
 # ============================================================================
 # 4. VL 模型 (Qwen3-VL) 配置
@@ -95,7 +110,11 @@ VL_API_URL = "https://llmapi.paratera.com/v1"
 VL_MODEL_NAME = "Qwen3-VL-30B-A3B-Instruct"
 
 # 启动校验: API 模式下密钥为空则报错退出
-if VL_MODE == "api" and (VL_API_KEY is None or VL_API_KEY.strip() == ""):
+if (
+    VL_MODE == "api"
+    and (VL_API_KEY is None or VL_API_KEY.strip() == "")
+    and os.environ.get("SYS_VISION_SKIP_VL_CONFIG_CHECK") != "1"
+):
     print("=" * 60)
     print("  [致命错误] PARATERA_API_KEY 环境变量未设置！")
     print("  请创建 .env 文件并设置密钥，或执行:")

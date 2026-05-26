@@ -278,7 +278,7 @@ def run_pipeline(runtime_prompt: str | None = None):
     )
 
     # 一次性处理所有物体点云（背景 + 各物体）
-    pc_data = compute_all_point_clouds(depth_img, boxes)
+    pc_data = compute_all_point_clouds(depth_img, boxes, number_str=number_str)
 
     centroids_cam = pc_data["centroids"]
 
