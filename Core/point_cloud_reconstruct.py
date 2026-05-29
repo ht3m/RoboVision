@@ -19,6 +19,7 @@ from typing import Optional
 
 from config import (
     RAW_PC_DEPTH_SCALE,
+    RAW_PC_BUILD_BACKGROUND,
     RAW_PC_VOXEL_SIZE,
     RAW_PC_STAT_NB_NEIGHBORS,
     RAW_PC_STAT_STD_RATIO,
@@ -387,17 +388,20 @@ def compute_all_point_clouds(depth_img: NDArray,
     n_obj = union_obj_mask.sum()
     print(f"  物体像素 (并集): {n_obj}  ({100*n_obj/(w*h):.1f}%)")
 
-    # ── 背景点云 = 全图有效像素 - 物体区域 ──
-    print(f"\n  生成背景点云 (灰色)...")
-    bg_mask = (depth_img > 0) & (~union_obj_mask)
-    bg_pts = depth_to_point_cloud(depth_img, bg_mask)
-    print(f"    背景像素: {bg_mask.sum()} → {len(bg_pts)} pts")
-    bg_pts = voxel_downsample(bg_pts)
-    print(f"    体素降采样 ({RAW_PC_VOXEL_SIZE*1000:.0f}mm): {len(bg_pts)} pts")
-
     bg_pcd = o3d.geometry.PointCloud()
-    bg_pcd.points = o3d.utility.Vector3dVector(bg_pts)
-    bg_pcd.paint_uniform_color([0.35, 0.35, 0.38])
+    if RAW_PC_BUILD_BACKGROUND:
+        # ── 背景点云 = 全图有效像素 - 物体区域 ──
+        print(f"\n  生成背景点云 (灰色)...")
+        bg_mask = (depth_img > 0) & (~union_obj_mask)
+        bg_pts = depth_to_point_cloud(depth_img, bg_mask)
+        print(f"    背景像素: {bg_mask.sum()} → {len(bg_pts)} pts")
+        bg_pts = voxel_downsample(bg_pts)
+        print(f"    体素降采样 ({RAW_PC_VOXEL_SIZE*1000:.0f}mm): {len(bg_pts)} pts")
+
+        bg_pcd.points = o3d.utility.Vector3dVector(bg_pts)
+        bg_pcd.paint_uniform_color([0.35, 0.35, 0.38])
+    else:
+        print(f"\n  跳过背景点云生成 (RAW_PC_BUILD_BACKGROUND=False)")
 
     # ── 逐个物体处理 ──
     obj_data = []  # [(name, pts_raw, pts_ds)]

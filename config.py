@@ -191,6 +191,7 @@ D405_COLLECT_FRAMES = 10     # 中值滤波收集帧数
 # 原始深度中透明物体区域噪声大、深度值大量丢失，需要保守的滤波策略。
 # ============================================================================
 RAW_PC_DEPTH_SCALE = 10000.0             # 0.1 mm → m (depth_scale=0.0001 m/unit)
+RAW_PC_BUILD_BACKGROUND = True           # Whether to build/downsample background point cloud for debug views
 RAW_PC_VOXEL_SIZE = 0.001                # 体素降采样 (m), 8mm
 RAW_PC_STAT_NB_NEIGHBORS = 20            # 统计滤波邻域点数
 RAW_PC_STAT_STD_RATIO = 1.5              # 统计滤波标准差倍数
