@@ -18,10 +18,12 @@
 import os
 import numpy as np
 
+PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+
 
 def _load_project_env() -> str:
     """Load project .env before reading environment-backed config."""
-    env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
+    env_path = os.path.join(PROJECT_ROOT, ".env")
 
     try:
         from dotenv import load_dotenv
@@ -77,12 +79,12 @@ ROBOT_PORT = 30003              # UR 实时数据端口
 # ============================================================================
 # 3. 目录路径
 # ============================================================================
-PHOTO_DIR = "photos"                    # 拍照保存
-OUTPUT_DIR = "procedure/VLM"            # VL 检测中间产物
-SAM_OUTPUT_DIR = "procedure/SAM"        # SAM2 分割中间产物
-CLOUD_POINT_DIR = "procedure/point_cloud"  # 点云截图中间产物
-OBJECT_POINT_CLOUD_DIR = "cloud_point"  # Per-shot object PLY point clouds.
-REPORT_DIR = "report"                   # 2x2 报告图
+PHOTO_DIR = os.path.join(PROJECT_ROOT, "photos")                    # 拍照保存
+OUTPUT_DIR = os.path.join(PROJECT_ROOT, "procedure", "VLM")         # VL 检测中间产物
+SAM_OUTPUT_DIR = os.path.join(PROJECT_ROOT, "procedure", "SAM")     # SAM2 分割中间产物
+CLOUD_POINT_DIR = os.path.join(PROJECT_ROOT, "procedure", "point_cloud")  # 点云截图中间产物
+OBJECT_POINT_CLOUD_DIR = os.path.join(PROJECT_ROOT, "cloud_point")  # Per-shot object PLY point clouds.
+REPORT_DIR = os.path.join(PROJECT_ROOT, "report")                   # 2x2 报告图
 
 # ============================================================================
 # 3.1 Object point-cloud section circle tool
@@ -225,7 +227,7 @@ FONT_PATHS = [
 ]
 
 # Final result output.
-RESULT_DIR = "result"
+RESULT_DIR = os.path.join(PROJECT_ROOT, "result")
 RESULT_FILE = "vision_result.txt"
 
 # "fixed" uses the prompt defined in code.
