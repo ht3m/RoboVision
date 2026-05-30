@@ -396,12 +396,26 @@ def clean_mask(mask: np.ndarray) -> np.ndarray:
 # 可视化
 # ============================================================================
 
+def _color_to_rgb255(color: Tuple[int, int, int] | Tuple[float, float, float]) -> tuple[int, int, int]:
+    """Accept either 0-255 RGB or 0-1 RGB and return integer RGB."""
+    values = np.asarray(color, dtype=np.float32)
+    if float(np.max(values)) <= 1.0:
+        values = values * 255.0
+    values = np.clip(np.rint(values), 0, 255).astype(np.uint8)
+    return int(values[0]), int(values[1]), int(values[2])
+
+
+def _color_to_hex(color: Tuple[int, int, int] | Tuple[float, float, float]) -> str:
+    r, g, b = _color_to_rgb255(color)
+    return f"#{r:02X}{g:02X}{b:02X}"
+
+
 def apply_colored_mask(image: np.ndarray, mask: np.ndarray, color: Tuple[int, int, int],
                        alpha: float = 0.5) -> np.ndarray:
     """在图片上叠加彩色半透明 mask"""
     overlayed = image.copy().astype(np.float32)
     mask_3ch = np.stack([mask] * 3, axis=-1)
-    color_arr = np.array(color, dtype=np.float32)
+    color_arr = np.array(_color_to_rgb255(color), dtype=np.float32)
     overlayed = overlayed * (1.0 - alpha * mask_3ch) + color_arr[None, None, :] * alpha * mask_3ch
     return np.clip(overlayed, 0, 255).astype(np.uint8)
 
@@ -435,7 +449,7 @@ def save_results(image_np: np.ndarray, boxes: List[Dict], name_prefix: str):
     for i, box in enumerate(boxes):
         x1, y1, x2, y2 = box["x1"], box["y1"], box["x2"], box["y2"]
         color_rgb = COLOR_PALETTE[i % len(COLOR_PALETTE)]
-        color_hex = f"#{color_rgb[0]:02X}{color_rgb[1]:02X}{color_rgb[2]:02X}"
+        color_hex = _color_to_hex(color_rgb)
         draw.rectangle([x1, y1, x2, y2], outline=color_hex, width=line_w)
 
         score = box.get("score", 0)
@@ -541,7 +555,7 @@ def run_vl_sam(photo_number: int | str, runtime_prompt: str | None = None) -> Op
     line_w_det = max(2, w // 350)
     for i, box in enumerate(boxes):
         color_rgb = COLOR_PALETTE[i % len(COLOR_PALETTE)]
-        color_hex = f"#{color_rgb[0]:02X}{color_rgb[1]:02X}{color_rgb[2]:02X}"
+        color_hex = _color_to_hex(color_rgb)
         draw_det.rectangle([box["x1"], box["y1"], box["x2"], box["y2"]],
                            outline=color_hex, width=line_w_det)
         if font_det:
