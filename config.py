@@ -173,11 +173,21 @@ SAM_MASK_MIN_COMPONENT = 500
 # ============================================================================
 # 8. D405 相机内参
 # ============================================================================
+D405_ALIGN_DEPTH_TO_COLOR = True
+
 D405_FX = 663.6542
 D405_FY = 663.6542
 D405_CX = 619.5816
 D405_CY = 363.5091
 D405_DIST_COEFFS = [0.0, 0.0, 0.0, 0.0, 0.0]
+
+# Intrinsics for depth images aligned to the color stream.
+# When D405_ALIGN_DEPTH_TO_COLOR=True, point-cloud reconstruction uses these.
+D405_ALIGNED_FX = 663.6542
+D405_ALIGNED_FY = 663.6542
+D405_ALIGNED_CX = 619.5816
+D405_ALIGNED_CY = 363.5091
+D405_ALIGNED_DIST_COEFFS = [0.0, 0.0, 0.0, 0.0, 0.0]
 
 # ============================================================================
 # 9. D405 拍照参数

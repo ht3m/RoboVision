@@ -30,6 +30,8 @@ from config import (
     RAW_PC_DBSCAN_KEEP_TOP2,
     RAW_PC_DBSCAN_TOP2_RATIO,
     D405_FX, D405_FY, D405_CX, D405_CY,
+    D405_ALIGN_DEPTH_TO_COLOR,
+    D405_ALIGNED_FX, D405_ALIGNED_FY, D405_ALIGNED_CX, D405_ALIGNED_CY,
     MODE, CLOUD_POINT_DIR, OBJECT_POINT_CLOUD_DIR,
     VIS_PALETTE,
 )
@@ -63,8 +65,15 @@ def depth_to_point_cloud(depth: NDArray,
     v_valid = v[valid]
     z_valid = z[valid]
 
-    x = (u_valid - D405_CX) * z_valid / D405_FX
-    y = (v_valid - D405_CY) * z_valid / D405_FY
+    if D405_ALIGN_DEPTH_TO_COLOR:
+        fx, fy = D405_ALIGNED_FX, D405_ALIGNED_FY
+        cx, cy = D405_ALIGNED_CX, D405_ALIGNED_CY
+    else:
+        fx, fy = D405_FX, D405_FY
+        cx, cy = D405_CX, D405_CY
+
+    x = (u_valid - cx) * z_valid / fx
+    y = (v_valid - cy) * z_valid / fy
 
     return np.column_stack([x, y, z_valid])
 
