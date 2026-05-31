@@ -19,6 +19,7 @@ from typing import Optional
 
 from config import (
     RAW_PC_DEPTH_SCALE,
+    DEPTH_Z_SCALE,
     RAW_PC_BUILD_BACKGROUND,
     RAW_PC_VOXEL_SIZE,
     RAW_PC_STAT_NB_NEIGHBORS,
@@ -55,7 +56,7 @@ def depth_to_point_cloud(depth: NDArray,
     u, v = np.meshgrid(np.arange(w), np.arange(h))
     u = u.astype(np.float64)
     v = v.astype(np.float64)
-    z = depth.astype(np.float64) / RAW_PC_DEPTH_SCALE
+    z = depth.astype(np.float64) / RAW_PC_DEPTH_SCALE * DEPTH_Z_SCALE
 
     valid = z > 0
     if mask is not None:
