@@ -127,9 +127,7 @@ Sys_Vision/
 │   ├── point_cloud_reconstruct.py  # 点云重建、滤波、OBB 与重心估计
 │   └── robot_arm.py                # UR5 TCP 位姿读取与矩阵转换
 ├── Tools/
-│   ├── d405_intrinsics.py          # 读取 D405 对齐后内参
-│   └── point_cloud_section_circle.py
-│                                      # 实验性脚本，当前主流程未调用
+│   └── d405_intrinsics.py          # 读取 D405 对齐后内参
 ├── photos/                         # 运行时生成：彩色图和深度图
 ├── procedure/
 │   ├── VLM/                        # 运行时生成：VLM 检测框图
@@ -196,10 +194,6 @@ Sys_Vision/
 | `RAW_PC_DBSCAN_TOP2_RATIO` | `0.5` | 第二大簇保留阈值 |
 
 `DEPTH_Z_SCALE` 的来源是 `F:\Project_V\Major\Handeye\results\eye_on_hand\depth_scale.txt`。它并不替代 D405 的物理 depth scale，而是在点云重建阶段对 Z 轴做实验标定补偿。
-
-### 4.5 未纳入主流程的配置
-
-`config.py` 中仍保留了 `POINT_CLOUD_SECTION_*`、`POINT_CLOUD_CIRCLE_*` 和 `POINT_CLOUD_KNOWN_CIRCLE_DIAMETER` 等参数。这些参数服务于 `Tools/point_cloud_section_circle.py` 的点云截面圆实验脚本，当前 `main.py` 主流程不调用该工具，也不依赖这些参数完成定位输出。
 
 ---
 
