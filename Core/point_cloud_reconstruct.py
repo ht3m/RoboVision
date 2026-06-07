@@ -26,6 +26,7 @@ from config import (
     RAW_PC_STAT_STD_RATIO,
     RAW_PC_FINE_FILTER_MODE,
     RAW_PC_FINE_FILTER_RATIO,
+    RAW_PC_FINE_FILTER_MIN_RADIUS,
     RAW_PC_RADIUS_FILTER_MIN_NEIGHBORS,
     RAW_PC_DBSCAN_MIN_POINTS,
     RAW_PC_DBSCAN_KEEP_TOP2,
@@ -239,7 +240,8 @@ def filter_single_object(pts_ds: NDArray) -> tuple[NDArray, NDArray]:
         all_removed = np.vstack(removed_parts) if removed_parts else np.empty((0, 3))
         return pts_clean, all_removed
 
-    adaptive_r = shortest_dim * RAW_PC_FINE_FILTER_RATIO
+    adaptive_r = max(shortest_dim * RAW_PC_FINE_FILTER_RATIO,
+                     RAW_PC_FINE_FILTER_MIN_RADIUS)
     r_mm = adaptive_r * 1000
 
     if mode == "radius":

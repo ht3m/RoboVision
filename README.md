@@ -189,6 +189,7 @@ Sys_Vision/
 | `RAW_PC_STAT_STD_RATIO` | `1.5` | 统计滤波标准差倍数 |
 | `RAW_PC_FINE_FILTER_MODE` | `"dbscan"` | 精滤模式：`none`、`radius` 或 `dbscan` |
 | `RAW_PC_FINE_FILTER_RATIO` | `0.1` | 精滤半径与 OBB 最短边的比例 |
+| `RAW_PC_FINE_FILTER_MIN_RADIUS` | `0.005` | 精滤半径最小值，单位 m，默认 5mm |
 | `RAW_PC_DBSCAN_MIN_POINTS` | `5` | DBSCAN 最小聚类点数 |
 | `RAW_PC_DBSCAN_KEEP_TOP2` | `True` | 第二大簇足够大时是否保留 |
 | `RAW_PC_DBSCAN_TOP2_RATIO` | `0.5` | 第二大簇保留阈值 |

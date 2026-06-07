@@ -208,6 +208,7 @@ RAW_PC_STAT_NB_NEIGHBORS = 20            # 统计滤波邻域点数
 RAW_PC_STAT_STD_RATIO = 1.5              # 统计滤波标准差倍数
 RAW_PC_FINE_FILTER_MODE = "dbscan"       # 精滤波: "none" / "radius" / "dbscan"
 RAW_PC_FINE_FILTER_RATIO = 0.1           # 滤波半径 = OBB最短边 × 此比例
+RAW_PC_FINE_FILTER_MIN_RADIUS = 0.005    # 滤波半径最小值 (m), 默认 5mm
 RAW_PC_RADIUS_FILTER_MIN_NEIGHBORS = 2   # 半径滤波最小邻点数
 RAW_PC_DBSCAN_MIN_POINTS = 5             # DBSCAN 最小聚类点数
 RAW_PC_DBSCAN_KEEP_TOP2 = True           # 第二大簇点数达标时也保留
